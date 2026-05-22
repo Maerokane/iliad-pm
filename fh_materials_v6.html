@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FH · MATERIALS & CRAFTING SYSTEM v6</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root{--void:#0A0D14;--panel:#111827;--amber:#E87D2B;--amber-dim:#7a3f10;--amber-glow:rgba(232,125,43,0.12);--cyan:#4FC3D8;--cyan-dim:#1a4a55;--cyan-glow:rgba(79,195,216,0.10);--steel:#2A4A6B;--white:#FFFFFF;--offWhite:#E8E8E8;--gray:#8899AA;--darkCard:#0F1923;--midCard:#162030;--red:#C0392B;--red-dim:#5a1510;--green:#27AE60;--green-dim:#0f3a20;--gold:#f9d030;--gold-dim:#4a3a00;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--void);color:var(--offWhite);font-family:'Share Tech Mono',monospace;font-size:15px;min-height:100vh;overflow-x:hidden;}
+.top-bar{background:var(--amber);height:5px;position:fixed;top:0;left:0;right:0;z-index:200;}
+.header{position:fixed;top:5px;left:0;right:0;z-index:199;background:var(--panel);border-bottom:1px solid var(--steel);padding:10px 24px;display:flex;align-items:center;gap:14px;}
+.header-title{font-family:'Orbitron',monospace;font-size:17px;font-weight:700;color:var(--amber);letter-spacing:3px;}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.hdr-user{font-size:14px;color:var(--cyan);letter-spacing:1px;}
+.hdr-version{font-size:12px;color:var(--cyan);letter-spacing:2px;border:1px solid var(--cyan-dim);padding:3px 10px;}
+.nav-bar{position:fixed;top:50px;left:0;right:0;z-index:198;background:var(--darkCard);border-bottom:1px solid var(--steel);display:flex;padding:0 24px;overflow-x:auto;}
+.nav-tab{font-family:'Orbitron',monospace;font-size:13px;font-weight:600;letter-spacing:2px;color:var(--gray);padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;white-space:nowrap;}
+.nav-tab:hover{color:var(--offWhite);}
+.nav-tab.active{color:var(--amber);border-bottom-color:var(--amber);}
+.main{padding-top:100px;padding-bottom:40px;max-width:1200px;margin:0 auto;padding-left:24px;padding-right:24px;}
+.view{display:none;}.view.active{display:block;}
+.footer{background:var(--amber);color:var(--void);text-align:center;font-size:11px;font-weight:700;letter-spacing:2px;padding:4px;position:fixed;bottom:0;left:0;right:0;z-index:199;}
+#login-screen{position:fixed;inset:0;background:var(--void);z-index:500;display:flex;align-items:center;justify-content:center;}
+.login-box{background:var(--panel);border:1px solid var(--amber);padding:40px 44px;width:420px;max-width:95vw;}
+.login-title{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:var(--amber);letter-spacing:3px;text-align:center;margin-bottom:6px;}
+.login-sub{font-size:13px;color:var(--gray);text-align:center;letter-spacing:2px;margin-bottom:28px;}
+.section-label{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;margin:22px 0 10px;display:flex;align-items:center;gap:8px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--steel);}
+.panel{background:var(--panel);border:1px solid var(--steel);margin-bottom:16px;}
+.panel-header{background:var(--darkCard);border-bottom:1px solid var(--steel);padding:8px 14px;display:flex;align-items:center;gap:8px;}
+.panel-icon{color:var(--amber);font-size:15px;}
+.panel-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:600;color:var(--offWhite);letter-spacing:2px;}
+.panel-body{padding:14px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-grid.three{grid-template-columns:1fr 1fr 1fr;}
+.form-grid.four{grid-template-columns:1fr 1fr 1fr 1fr;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-group.span-2{grid-column:span 2;}
+.form-group.span-3{grid-column:span 3;}
+.form-group.span-4{grid-column:span 4;}
+label{font-size:11px;color:var(--gray);letter-spacing:1.5px;text-transform:uppercase;}
+input[type=text],input[type=number],input[type=password],select,textarea{background:var(--darkCard);border:1px solid var(--steel);color:var(--offWhite);font-family:'Share Tech Mono',monospace;font-size:15px;padding:9px 12px;outline:none;transition:border-color .2s;width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--amber);}
+select option{background:var(--darkCard);}
+textarea{min-height:52px;resize:vertical;}
+.quality-row{display:flex;align-items:center;gap:8px;}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--steel);outline:none;border:none;padding:0;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--amber);cursor:pointer;}
+.btn{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:2px;padding:8px 16px;cursor:pointer;border:none;transition:all .15s;text-transform:uppercase;}
+.btn-amber{background:var(--amber);color:var(--void);}.btn-amber:hover{background:#f0924a;}
+.btn-cyan{background:transparent;border:1px solid var(--cyan);color:var(--cyan);}.btn-cyan:hover{background:var(--cyan-glow);}
+.btn-red{background:transparent;border:1px solid var(--red);color:var(--red);}.btn-red:hover{background:rgba(192,57,43,0.15);}
+.btn-green{background:var(--green);color:var(--void);}.btn-green:hover{background:#2ecc71;}
+.btn-steel{background:var(--steel);color:var(--offWhite);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{background:var(--steel);color:var(--white);font-family:'Orbitron',monospace;font-size:12px;letter-spacing:2px;padding:8px 10px;text-align:left;text-transform:uppercase;}
+.data-table td{padding:9px 10px;font-size:14px;border-bottom:1px solid var(--darkCard);vertical-align:middle;}
+.data-table tr:nth-child(even) td{background:rgba(22,32,48,0.4);}
+.data-table tr:hover td{background:var(--amber-glow);}
+.data-table .empty-row td{text-align:center;color:var(--gray);font-size:13px;letter-spacing:1px;padding:20px;}
+.q-badge{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;padding:3px 6px;display:inline-block;}
+.q-poor{color:#8899AA;border:1px solid #445566;}.q-low{color:#E87D2B;border:1px solid var(--amber-dim);}
+.q-std{color:#4FC3D8;border:1px solid var(--cyan-dim);}.q-exc{color:#f9d030;border:1px solid #6a5500;}
+.status-badge{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;letter-spacing:1px;padding:3px 8px;text-transform:uppercase;}
+.s-pending{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-dim);}
+.s-progress{background:var(--cyan-dim);color:var(--cyan);border:1px solid var(--cyan-dim);}
+.s-fulfilled{background:var(--green-dim);color:var(--green);border:1px solid var(--green-dim);}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--panel);border:1px solid var(--steel);border-top:2px solid var(--amber);padding:12px 14px;}
+.stat-val{font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--amber);}
+.stat-label{font-size:11px;color:var(--gray);letter-spacing:1.5px;margin-top:3px;}
+.share-area{background:var(--darkCard);border:1px solid var(--steel);padding:12px;margin-top:10px;}
+.share-area textarea{font-size:13px;min-height:60px;color:var(--cyan);border-color:var(--cyan-dim);}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:300;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--panel);border:1px solid var(--amber);padding:26px;width:500px;max-width:95vw;}
+.modal-title{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:var(--amber);letter-spacing:2px;margin-bottom:16px;}
+.info-box{background:var(--darkCard);border-left:3px solid var(--amber);padding:10px 14px;font-size:13px;color:var(--gray);line-height:1.8;margin-bottom:12px;}
+.warn-box{background:var(--red-dim);border-left:3px solid var(--red);padding:10px 14px;font-size:13px;color:#ff9999;line-height:1.8;margin-bottom:12px;}
+.divider{height:1px;background:var(--steel);margin:12px 0;}
+@media(max-width:700px){.form-grid,.form-grid.three,.form-grid.four{grid-template-columns:1fr 1fr;}.stats-row{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-title">FH · MATERIALS</div>
+    <div class="login-sub">CRAFTING & INVENTORY SYSTEM · v6 · HERALD INTERNAL</div>
+    <div class="divider"></div>
+    <div class="form-group" style="margin-bottom:18px;">
+      <label>Your RSI Handle</label>
+      <input type="text" id="login-handle" placeholder="Enter your RSI handle..." onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="btn btn-amber" style="width:100%;padding:12px;" onclick="doLogin()">ENTER SYSTEM</button>
+    <div id="login-err" style="margin-top:10px;font-size:13px;color:var(--red);display:none;text-align:center;"></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="top-bar"></div>
+<div class="header">
+  <div class="header-title">◈ FH · MATERIALS & CRAFTING</div>
+  <div class="header-right">
+    <span id="hdr-user" class="hdr-user"></span>
+    <span class="hdr-version">ILIAD · v6</span>
+    <button class="btn btn-steel btn-sm" onclick="doLogout()">LOGOUT</button>
+  </div>
+</div>
+
+<div class="nav-bar">
+  <div class="nav-tab active" id="tab-inventory" onclick="showView('inventory')">01 // INVENTORY</div>
+  <div class="nav-tab" id="tab-requests" onclick="showView('requests')">02 // REQUESTS</div>
+  <div class="nav-tab" id="tab-save" onclick="showView('save')">03 // SAVE / LOAD</div>
+</div>
+
+<div class="main">
+
+<!-- ══ 01 INVENTORY ══ -->
+<div id="view-inventory" class="view active">
+  <div class="info-box">Master materials inventory. Add materials as members deliver them. Edit or remove entries as stock is consumed or corrected. All changes are logged with your RSI handle.</div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val" id="inv-stat-mats">0</div><div class="stat-label">UNIQUE MATERIALS</div></div>
+    <div class="stat-card" style="border-top-color:var(--cyan);"><div class="stat-val" style="color:var(--cyan);" id="inv-stat-qty">0</div><div class="stat-label">TOTAL UNITS</div></div>
+    <div class="stat-card"><div class="stat-val" id="inv-stat-avg">—</div><div class="stat-label">AVG QUALITY</div></div>
+    <div class="stat-card" style="border-top-color:var(--gold);"><div class="stat-val" style="color:var(--gold);" id="inv-stat-high">0</div><div class="stat-label">HIGH QUALITY 75+</div></div>
+  </div>
+
+  <div class="section-label">ADD MATERIAL</div>
+  <div class="panel">
+    <div class="panel-header"><span class="panel-icon">◈</span><span class="panel-title">NEW ENTRY</span></div>
+    <div class="panel-body">
+      <div class="form-grid four">
+        <div class="form-group span-2"><label>Material Name</label><input type="text" id="add-name" placeholder="e.g. Titanium, Agricium, Laranite..."/></div>
+        <div class="form-group"><label>Quantity</label><input type="number" id="add-qty" placeholder="1" min="1"/></div>
+        <div class="form-group"><label>Quality (1–100)</label>
+          <div class="quality-row">
+            <input type="range" id="add-qslider" min="1" max="100" value="50" oninput="document.getElementById('add-qnum').value=this.value;updateQC('add-qnum')"/>
+            <input type="number" id="add-qnum" min="1" max="100" value="50" style="width:60px;" oninput="document.getElementById('add-qslider').value=this.value;updateQC('add-qnum')"/>
+          </div>
+        </div>
+        <div class="form-group span-2"><label>Contributed By (RSI Handle)</label><input type="text" id="add-contrib" placeholder="Member's RSI handle..."/></div>
+        <div class="form-group span-2"><label>Notes (optional)</label><input type="text" id="add-notes" placeholder="e.g. from mining run, salvage, purchased..."/></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-amber" onclick="addEntry()">+ ADD TO INVENTORY</button>
+        <button class="btn btn-cyan" onclick="clearAddForm()">CLEAR</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">CURRENT STOCK</div>
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-icon">◈</span><span class="panel-title">ALL MATERIALS</span>
+      <span style="margin-left:auto;"><input type="text" id="inv-search" placeholder="SEARCH..." style="width:180px;font-size:13px;padding:4px 8px;" oninput="renderInventory()"/></span>
+    </div>
+    <div class="panel-body" style="padding:0;">
+      <table class="data-table">
+        <thead><tr><th>MATERIAL</th><th>QTY</th><th>QUALITY</th><th>RATING</th><th>CONTRIBUTED BY</th><th>NOTES</th><th>LOGGED BY</th><th>ACTION</th></tr></thead>
+        <tbody id="inv-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="change-log-section">
+    <div class="section-label">CHANGE LOG</div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-icon">◈</span><span class="panel-title">THIS SESSION</span></div>
+      <div class="panel-body" style="padding:0;" id="log-body">
+        <div style="text-align:center;color:var(--gray);font-size:13px;padding:18px;letter-spacing:1px;">NO CHANGES THIS SESSION</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 02 REQUESTS ══ -->
+<div id="view-requests" class="view">
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val" id="r-stat-total">0</div><div class="stat-label">TOTAL REQUESTS</div></div>
+    <div class="stat-card" style="border-top-color:var(--amber);"><div class="stat-val" style="color:var(--amber);" id="r-stat-pend">0</div><div class="stat-label">PENDING</div></div>
+    <div class="stat-card" style="border-top-color:var(--cyan);"><div class="stat-val" style="color:var(--cyan);" id="r-stat-prog">0</div><div class="stat-label">IN PROGRESS</div></div>
+    <div class="stat-card" style="border-top-color:var(--green);"><div class="stat-val" style="color:var(--green);" id="r-stat-done">0</div><div class="stat-label">FULFILLED</div></div>
+  </div>
+  <div class="section-label">NEW REQUEST</div>
+  <div class="panel">
+    <div class="panel-header"><span class="panel-icon">◈</span><span class="panel-title">SUBMIT CRAFTING REQUEST</span></div>
+    <div class="panel-body">
+      <div class="form-grid three">
+        <div class="form-group"><label>Requesting Handle (RSI)</label><input type="text" id="r-handle" placeholder="RSI handle..."/></div>
+        <div class="form-group"><label>Item Requested</label><input type="text" id="r-item" placeholder="Item to be crafted..."/></div>
+        <div class="form-group"><label>Quantity</label><input type="number" id="r-qty" placeholder="1" min="1"/></div>
+        <div class="form-group span-3"><label>Notes / Specifications</label><textarea id="r-notes" placeholder="Quality preferences, priority, deadline, materials to use..."></textarea></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-amber" onclick="addRequest()">+ SUBMIT REQUEST</button>
+        <button class="btn btn-cyan" onclick="clearRForm()">CLEAR</button>
+      </div>
+    </div>
+  </div>
+  <div class="section-label">REQUEST QUEUE</div>
+  <div class="panel">
+    <div class="panel-header"><span class="panel-icon">◈</span><span class="panel-title">ACTIVE & HISTORICAL</span>
+      <span style="margin-left:auto;"><select id="r-filter" onchange="renderRequests()" style="font-size:13px;padding:4px 8px;width:auto;"><option value="all">ALL STATUS</option><option value="PENDING">PENDING</option><option value="IN PROGRESS">IN PROGRESS</option><option value="FULFILLED">FULFILLED</option></select></span>
+    </div>
+    <div class="panel-body" style="padding:0;">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>REQUESTING</th><th>ITEM</th><th>QTY</th><th>STATUS</th><th>FULFILLED BY</th><th>NOTES</th><th>ACTION</th></tr></thead>
+        <tbody id="r-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 03 SAVE / LOAD ══ -->
+<div id="view-save" class="view">
+  <div class="section-label">SAVE STATE</div>
+  <div class="panel">
+    <div class="panel-header"><span class="panel-icon">◈</span><span class="panel-title">EXPORT FULL SYSTEM STATE</span></div>
+    <div class="panel-body">
+      <div class="info-box">Exports all inventory and requests to a save code. Copy and store this somewhere safe — Discord DM to yourself, a text file, anywhere. Paste it back below to restore.</div>
+      <button class="btn btn-amber" onclick="exportState()">GENERATE SAVE CODE</button>
+      <div class="share-area" id="export-area" style="display:none;margin-top:12px;">
+        <textarea id="export-code" readonly onclick="this.select()" style="min-height:80px;"></textarea>
+        <div class="btn-row">
+          <button class="btn btn-cyan btn-sm" onclick="copyEl('export-code','export-confirm')">COPY TO CLIPBOARD</button>
+          <span id="export-confirm" style="font-size:13px;color:var(--green);display:none;">✓ COPIED</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">LOAD STATE</div>
+  <div class="panel">
+    <div class="panel-header"><span class="panel-icon">◈</span><span class="panel-title">RESTORE FROM SAVE CODE</span></div>
+    <div class="panel-body">
+      <div class="warn-box">Loading will overwrite all current inventory and request data.</div>
+      <div class="form-group"><label>Paste Save Code (FHILIAD:)</label><textarea id="import-code" placeholder="FHILIAD:..." style="min-height:80px;"></textarea></div>
+      <div class="btn-row">
+        <button class="btn btn-amber" onclick="loadState()">LOAD STATE</button>
+        <button class="btn btn-red" onclick="clearAll()">CLEAR ALL DATA</button>
+      </div>
+      <div id="import-msg" style="margin-top:8px;font-size:13px;display:none;"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-box">
+    <div class="modal-title">◈ EDIT INVENTORY ENTRY</div>
+    <div class="form-grid" style="margin-bottom:10px;">
+      <div class="form-group"><label>Material Name</label><input type="text" id="em-name"/></div>
+      <div class="form-group"><label>Contributed By</label><input type="text" id="em-contrib"/></div>
+      <div class="form-group"><label>Quantity</label><input type="number" id="em-qty" min="0"/></div>
+      <div class="form-group"><label>Quality (1–100)</label><input type="number" id="em-quality" min="1" max="100"/></div>
+      <div class="form-group span-2"><label>Notes</label><input type="text" id="em-notes"/></div>
+      <div class="form-group span-2"><label>Reason for Edit (audit log)</label><input type="text" id="em-reason" placeholder="e.g. used in production, quantity correction..."/></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-amber" onclick="confirmEdit()">SAVE CHANGES</button>
+      <button class="btn btn-cyan" onclick="closeModal('edit-modal')">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer">FORGOTTEN HERALDS · ILIAD COMPANY · MATERIALS & CRAFTING SYSTEM · v6 · HERALD INTERNAL</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentUser = '';
+let inventory = [], requests = [], changeLog = [];
+let nextInvId = 1, nextReqId = 1;
+let editTarget = null;
+
+// ── QUALITY ───────────────────────────────────────────────────────────────────
+const qColor = q => q>=75?'#f9d030':q>=50?'#4FC3D8':q>=25?'#E87D2B':'#8899AA';
+const qClass = q => q>=75?'q-exc':q>=50?'q-std':q>=25?'q-low':'q-poor';
+const qLabel = q => q>=75?'EXCEPTIONAL':q>=50?'STANDARD':q>=25?'LOW':'POOR';
+function updateQC(id){const el=document.getElementById(id);if(el)el.style.color=qColor(+el.value);}
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────────
+function doLogin(){
+  const handle = document.getElementById('login-handle').value.trim();
+  if(!handle){showLoginErr('RSI handle required.');return;}
+  currentUser = handle;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('hdr-user').textContent = currentUser;
+  renderAll();
+}
+function showLoginErr(m){const el=document.getElementById('login-err');el.textContent=m;el.style.display='block';setTimeout(()=>el.style.display='none',3000);}
+function doLogout(){
+  currentUser='';
+  document.getElementById('login-handle').value='';
+  document.getElementById('login-screen').style.display='flex';
+}
+
+// ── INVENTORY ─────────────────────────────────────────────────────────────────
+function addEntry(){
+  const name = document.getElementById('add-name').value.trim();
+  const qty = parseInt(document.getElementById('add-qty').value)||1;
+  const qual = parseInt(document.getElementById('add-qnum').value)||50;
+  const contrib = document.getElementById('add-contrib').value.trim()||'Unknown';
+  const notes = document.getElementById('add-notes').value.trim();
+  if(!name){alert('Material name required.');return;}
+  // Merge if same name + quality + contributor
+  const ex = inventory.find(m=>m.name.toLowerCase()===name.toLowerCase()&&m.quality===qual&&m.contributor===contrib);
+  if(ex){
+    ex.qty += qty;
+    logChange('UPDATED', ex, `+${qty} units added by ${currentUser}`);
+  } else {
+    const entry = {id:nextInvId++,name,qty,quality:qual,contributor:contrib,notes,loggedBy:currentUser,ts:now()};
+    inventory.push(entry);
+    logChange('ADDED', entry, `Added by ${currentUser}`);
+  }
+  clearAddForm(); renderInventory();
+}
+function clearAddForm(){
+  document.getElementById('add-name').value='';
+  document.getElementById('add-qty').value='';
+  document.getElementById('add-contrib').value='';
+  document.getElementById('add-notes').value='';
+  document.getElementById('add-qnum').value=50;
+  document.getElementById('add-qslider').value=50;
+  document.getElementById('add-qnum').style.color=qColor(50);
+}
+function removeEntry(id){
+  const m = inventory.find(x=>x.id===id);
+  if(m && confirm(`Remove ${m.name} (${m.qty} units) from inventory?`)){
+    logChange('REMOVED', m, `Removed by ${currentUser}`);
+    inventory = inventory.filter(x=>x.id!==id);
+    renderInventory();
+  }
+}
+
+function renderInventory(){
+  const s = (document.getElementById('inv-search').value||'').toLowerCase();
+  const rows = inventory.filter(m=>!s||m.name.toLowerCase().includes(s)).sort((a,b)=>a.name.localeCompare(b.name));
+  const tb = document.getElementById('inv-tbody');
+  if(!rows.length){tb.innerHTML='<tr class="empty-row"><td colspan="8">NO MATERIALS — ADD ABOVE</td></tr>';updateInvStats();return;}
+  tb.innerHTML = rows.map(m=>`
+    <tr>
+      <td style="color:var(--amber);font-weight:700;">${esc(m.name)}</td>
+      <td style="font-family:'Orbitron',monospace;font-size:17px;font-weight:700;">${m.qty}</td>
+      <td><div style="display:flex;align-items:center;gap:6px;"><div style="flex:1;height:3px;background:var(--steel);max-width:80px;"><div style="height:3px;width:${m.quality}%;background:${qColor(m.quality)};"></div></div><span style="color:${qColor(m.quality)};font-family:'Orbitron',monospace;font-size:14px;font-weight:700;">${m.quality}</span></div></td>
+      <td><span class="q-badge ${qClass(m.quality)}">${qLabel(m.quality)}</span></td>
+      <td style="color:var(--cyan);">${esc(m.contributor)||'—'}</td>
+      <td style="color:var(--gray);font-size:13px;max-width:140px;">${esc(m.notes)||'—'}</td>
+      <td style="color:var(--gray);font-size:13px;">${esc(m.loggedBy)||'—'}</td>
+      <td><div style="display:flex;gap:4px;">
+        <button class="btn btn-cyan btn-sm" onclick="openEdit(${m.id})">EDIT</button>
+        <button class="btn btn-red btn-sm" onclick="removeEntry(${m.id})">✕</button>
+      </div></td>
+    </tr>`).join('');
+  updateInvStats();
+}
+function updateInvStats(){
+  document.getElementById('inv-stat-mats').textContent = inventory.length;
+  document.getElementById('inv-stat-qty').textContent = inventory.reduce((s,m)=>s+m.qty,0);
+  const avg = inventory.length ? Math.round(inventory.reduce((s,m)=>s+m.quality,0)/inventory.length) : '—';
+  document.getElementById('inv-stat-avg').textContent = avg;
+  document.getElementById('inv-stat-high').textContent = inventory.filter(m=>m.quality>=75).length;
+}
+
+// ── EDIT MODAL ────────────────────────────────────────────────────────────────
+function openEdit(id){
+  const m = inventory.find(x=>x.id===id);if(!m)return;
+  editTarget = m;
+  document.getElementById('em-name').value = m.name;
+  document.getElementById('em-contrib').value = m.contributor||'';
+  document.getElementById('em-qty').value = m.qty;
+  document.getElementById('em-quality').value = m.quality;
+  document.getElementById('em-notes').value = m.notes||'';
+  document.getElementById('em-reason').value = '';
+  document.getElementById('edit-modal').classList.add('open');
+}
+function confirmEdit(){
+  if(!editTarget)return;
+  const name = document.getElementById('em-name').value.trim();
+  const contrib = document.getElementById('em-contrib').value.trim();
+  const qty = parseInt(document.getElementById('em-qty').value);
+  const quality = parseInt(document.getElementById('em-quality').value);
+  const notes = document.getElementById('em-notes').value.trim();
+  const reason = document.getElementById('em-reason').value.trim()||'No reason given';
+  if(!name||isNaN(qty)||isNaN(quality)){alert('Name, quantity, and quality required.');return;}
+  if(quality<1||quality>100){alert('Quality must be 1–100.');return;}
+  if(qty<0){alert('Quantity cannot be negative.');return;}
+  logChange('EDITED', editTarget, `${reason} — by ${currentUser}`);
+  editTarget.name=name; editTarget.contributor=contrib; editTarget.qty=qty;
+  editTarget.quality=quality; editTarget.notes=notes; editTarget.loggedBy=currentUser;
+  closeModal('edit-modal'); renderInventory();
+}
+
+// ── CHANGE LOG ────────────────────────────────────────────────────────────────
+function logChange(type, entry, detail){
+  changeLog.unshift({type, name:entry.name, qty:entry.qty, quality:entry.quality, contributor:entry.contributor, detail, ts:now()});
+  renderChangeLog();
+}
+function renderChangeLog(){
+  const el = document.getElementById('log-body');
+  if(!changeLog.length){el.innerHTML='<div style="text-align:center;color:var(--gray);font-size:13px;padding:18px;letter-spacing:1px;">NO CHANGES THIS SESSION</div>';return;}
+  const typeColor = t => t==='ADDED'?'var(--green)':t==='REMOVED'?'var(--red)':t==='EDITED'?'var(--cyan)':'var(--amber)';
+  el.innerHTML = changeLog.map(c=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:8px 14px;border-bottom:1px solid var(--darkCard);font-size:13px;">
+      <span style="font-family:'Orbitron',monospace;font-size:11px;font-weight:700;color:${typeColor(c.type)};min-width:70px;">${c.type}</span>
+      <span style="color:var(--amber);font-weight:700;">${esc(c.name)}</span>
+      <span style="color:var(--offWhite);">${c.qty} units · Q:${c.quality}</span>
+      <span style="color:var(--gray);">${esc(c.detail)}</span>
+      <span style="color:var(--gray);margin-left:auto;white-space:nowrap;">${c.ts}</span>
+    </div>`).join('');
+}
+
+// ── REQUESTS ──────────────────────────────────────────────────────────────────
+function addRequest(){
+  const handle = document.getElementById('r-handle').value.trim();
+  const item = document.getElementById('r-item').value.trim();
+  const qty = parseInt(document.getElementById('r-qty').value)||1;
+  const notes = document.getElementById('r-notes').value.trim();
+  if(!handle||!item){alert('Handle and item required.');return;}
+  requests.push({id:nextReqId++,handle,item,qty,notes,status:'PENDING',fulfilledBy:'',ts:now()});
+  clearRForm(); renderRequests();
+}
+function clearRForm(){['r-handle','r-item','r-qty','r-notes'].forEach(id=>document.getElementById(id).value='');}
+function setReqStatus(id, status){
+  const r = requests.find(x=>x.id===id);if(!r)return;
+  if(status==='FULFILLED'){const by=prompt('RSI handle of who fulfilled this:');if(by===null)return;r.fulfilledBy=by.trim();}
+  r.status=status; renderRequests();
+}
+function removeRequest(id){requests=requests.filter(r=>r.id!==id);renderRequests();}
+function renderRequests(){
+  const filter = document.getElementById('r-filter').value;
+  const rows = requests.filter(r=>filter==='all'||r.status===filter)
+    .sort((a,b)=>({'PENDING':0,'IN PROGRESS':1,'FULFILLED':2}[a.status]||0)-({'PENDING':0,'IN PROGRESS':1,'FULFILLED':2}[b.status]||0));
+  const tb = document.getElementById('r-tbody');
+  if(!rows.length){tb.innerHTML='<tr class="empty-row"><td colspan="8">NO REQUESTS</td></tr>';}
+  else tb.innerHTML = rows.map(r=>{
+    const sc = r.status==='PENDING'?'s-pending':r.status==='IN PROGRESS'?'s-progress':'s-fulfilled';
+    return `<tr>
+      <td style="color:var(--gray);font-size:13px;">#${r.id}</td>
+      <td style="color:var(--amber);font-weight:700;">${esc(r.handle)}</td>
+      <td style="font-weight:700;">${esc(r.item)}</td>
+      <td style="font-family:'Orbitron',monospace;">${r.qty}</td>
+      <td><span class="status-badge ${sc}">${r.status}</span></td>
+      <td style="color:var(--cyan);font-size:13px;">${r.fulfilledBy||'<span style="color:var(--gray);">—</span>'}</td>
+      <td style="font-size:13px;color:var(--gray);max-width:140px;">${esc(r.notes)||'—'}</td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap;">
+        ${r.status==='PENDING'?`<button class="btn btn-cyan btn-sm" onclick="setReqStatus(${r.id},'IN PROGRESS')">START</button>`:''}
+        ${r.status!=='FULFILLED'?`<button class="btn btn-green btn-sm" onclick="setReqStatus(${r.id},'FULFILLED')">FULFIL</button>`:''}
+        <button class="btn btn-red btn-sm" onclick="removeRequest(${r.id})">✕</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('r-stat-total').textContent = requests.length;
+  document.getElementById('r-stat-pend').textContent = requests.filter(r=>r.status==='PENDING').length;
+  document.getElementById('r-stat-prog').textContent = requests.filter(r=>r.status==='IN PROGRESS').length;
+  document.getElementById('r-stat-done').textContent = requests.filter(r=>r.status==='FULFILLED').length;
+}
+
+// ── SAVE / LOAD ───────────────────────────────────────────────────────────────
+function exportState(){
+  const data = {inventory, requests, nextInvId, nextReqId, savedBy:currentUser, savedAt:now(), v:6};
+  document.getElementById('export-code').value = 'FHILIAD:'+btoa(JSON.stringify(data));
+  document.getElementById('export-area').style.display = 'block';
+}
+function loadState(){
+  const raw = document.getElementById('import-code').value.trim();
+  const msg = document.getElementById('import-msg');
+  if(!raw.startsWith('FHILIAD:')){showMsg(msg,'ERROR: Must start with FHILIAD:','var(--red)');return;}
+  try{
+    const d = JSON.parse(atob(raw.replace('FHILIAD:','')));
+    inventory = d.inventory||[]; requests = d.requests||[];
+    nextInvId = d.nextInvId||inventory.length+1; nextReqId = d.nextReqId||requests.length+1;
+    showMsg(msg,`✓ LOADED — ${inventory.length} materials, ${requests.length} requests`,'var(--green)');
+    renderAll();
+  }catch(e){showMsg(msg,'ERROR: Could not parse save code.','var(--red)');}
+}
+function clearAll(){
+  if(confirm('Clear ALL inventory and request data? This cannot be undone.')){
+    inventory=[]; requests=[]; changeLog=[]; nextInvId=1; nextReqId=1;
+    renderAll();
+  }
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function showView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('tab-'+v).classList.add('active');
+  renderAll();
+}
+function renderAll(){renderInventory();renderRequests();renderChangeLog();}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function showMsg(el,txt,color){el.style.display='block';el.style.color=color;el.textContent=txt;setTimeout(()=>el.style.display='none',4000);}
+function copyEl(srcId,confirmId){
+  const ta=document.getElementById(srcId);ta.select();
+  navigator.clipboard.writeText(ta.value).catch(()=>{ta.select();document.execCommand('copy');});
+  const el=document.getElementById(confirmId);el.style.display='inline';
+  setTimeout(()=>el.style.display='none',3000);
+}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function now(){return new Date().toLocaleTimeString();}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.getElementById('add-qnum').style.color = qColor(50);
+</script>
+</body>
+</html>
